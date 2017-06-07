@@ -26,7 +26,7 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
     }
 
     @Override
-    public void onDialogResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onDialogResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, "onDialogResult: "
                 + "requestCode=" + requestCode + ", "
                 + "resultCode=" + resultCode + ", "
