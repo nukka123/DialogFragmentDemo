@@ -1,4 +1,4 @@
-package com.example.dialogfragmentdemo;
+package com.example.dialogfragmentdemo.demo;
 
 
 import android.content.Intent;
@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.dialogfragmentdemo.R;
 import com.example.dialogfragmentdemo.databinding.MainFragmentBinding;
 import com.example.dialogfragmentdemo.dialog.AbstractDialogFragment;
 import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;

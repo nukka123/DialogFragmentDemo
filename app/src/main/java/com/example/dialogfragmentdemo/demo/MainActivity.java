@@ -1,4 +1,4 @@
-package com.example.dialogfragmentdemo;
+package com.example.dialogfragmentdemo.demo;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.dialogfragmentdemo.R;
 import com.example.dialogfragmentdemo.databinding.MainActivityBinding;
 import com.example.dialogfragmentdemo.dialog.AbstractDialogFragment;
 import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;

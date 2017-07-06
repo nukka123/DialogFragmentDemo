@@ -1,4 +1,4 @@
-package com.example.dialogfragmentdemo;
+package com.example.dialogfragmentdemo.demo;
 
 import android.app.Application;
 
