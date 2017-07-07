@@ -2,59 +2,36 @@ package com.example.dialogfragmentdemo.demo;
 
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.dialogfragmentdemo.R;
-import com.example.dialogfragmentdemo.databinding.MainFragmentBinding;
 import com.example.dialogfragmentdemo.dialog.AbstractDialogFragment;
 import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;
 import com.example.dialogfragmentdemo.dialog.DatePickerFragment;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import timber.log.Timber;
+
 
 public class MainFragment extends Fragment implements AbstractDialogFragment.Callback {
-    static final String TAG = MainFragment.class.getSimpleName();
-    MainFragmentBinding mBiding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mBiding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false);
-        mBiding.button1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialogFromTarget();
-            }
-        });
-        mBiding.button2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialogFromTargetWithResId();
-            }
-        });
-        mBiding.button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDialogFromParent();
-            }
-        });
-        mBiding.button4.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePickerFragment();
-            }
-        });
-
-        return mBiding.getRoot();
+        Timber.d("onCreateView");
+        View root = inflater.inflate(R.layout.main_fragment, container, false);
+        ButterKnife.bind(this, root);
+        return root;
     }
 
+    @OnClick(R.id.button1)
     void showDialogFromTarget() {
-        Log.d(TAG, "showDialogFromTarget");
+        Timber.d("showDialogFromTarget");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
@@ -67,8 +44,9 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
                 .show(getFragmentManager(), "dialog");
     }
 
+    @OnClick(R.id.button2)
     void showDialogFromTargetWithResId() {
-        Log.d(TAG, "showDialogFromTargetWithResId");
+        Timber.d("showDialogFromTargetWithResId");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle(R.string.alert_title)
@@ -81,8 +59,9 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
                 .show(getFragmentManager(), "dialog");
     }
 
+    @OnClick(R.id.button3)
     void showDialogFromParent() {
-        Log.d(TAG, "showDialogFromParent");
+        Timber.d("showDialogFromParent");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
@@ -95,8 +74,9 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
                 .show(getChildFragmentManager(), "dialog");
     }
 
+    @OnClick(R.id.button4)
     void showDatePickerFragment() {
-        Log.d(TAG, "showDialog203");
+        Timber.d("showDatePickerFragment");
         new DatePickerFragment.Builder()
                 .build(this, 204)
                 .show(getFragmentManager(), "dialog");
@@ -104,10 +84,9 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
 
     @Override
     public void onDialogResult(int requestCode, int resultCode, Intent data) {
-        Log.d(TAG, "onDialogResult: "
-                + "requestCode=" + requestCode + ", "
-                + "resultCode=" + resultCode + ", "
-                + "data=" + data + ", "
-                + "extras=" + (data != null ? data.getExtras() : "null"));
+        Timber.d("onDialogResult: requestCode=%s", requestCode);
+        Timber.d("onDialogResult: resultCode=%s", resultCode);
+        Timber.d("onDialogResult: data=%s", data);
+        Timber.d("onDialogResult: extra=%s", (data != null ? data.getExtras() : "null"));
     }
 }

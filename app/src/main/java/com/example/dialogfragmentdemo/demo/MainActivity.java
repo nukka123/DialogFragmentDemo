@@ -1,28 +1,26 @@
 package com.example.dialogfragmentdemo.demo;
 
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.dialogfragmentdemo.R;
-import com.example.dialogfragmentdemo.databinding.MainActivityBinding;
 import com.example.dialogfragmentdemo.dialog.AbstractDialogFragment;
 import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity implements AbstractDialogFragment.Callback {
-    static final String TAG = MainActivity.class.getSimpleName();
-    MainActivityBinding mBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Timber.d("onCreate");
         super.onCreate(savedInstanceState);
-        mBinding = DataBindingUtil.setContentView(this, R.layout.main_activity);
+        setContentView(R.layout.main_activity);
 
         if (savedInstanceState == null) {
             navigateToMain(getSupportFragmentManager());
@@ -37,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "onOptionsItemSelected: " + item);
         switch (item.getItemId()) {
             case 10:
                 showDialogFromActivity();
@@ -47,7 +44,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
     }
 
     void showDialogFromActivity() {
-        Log.d(TAG, "showDialogFromActivity");
+        Timber.d("showDialogFromActivity");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
@@ -63,14 +60,13 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
 
     @Override
     public void onDialogResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.d(TAG, "onDialogResult: "
-                + "requestCode=" + requestCode + ", "
-                + "resultCode=" + resultCode + ", "
-                + "data=" + data);
+        Timber.d("onDialogResult: requestCode=%s", requestCode);
+        Timber.d("onDialogResult: resultCode=%s", resultCode);
+        Timber.d("onDialogResult: data=%s", data);
     }
 
     static void navigateToMain(FragmentManager manager) {
-        Log.d(TAG, "navigateToMain");
+        Timber.d("navigateToMain");
         if (manager != null) {
             manager.beginTransaction()
                     .replace(R.id.content_view, new MainFragment())
