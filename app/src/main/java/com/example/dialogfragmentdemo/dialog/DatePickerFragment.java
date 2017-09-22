@@ -41,7 +41,7 @@ public class DatePickerFragment extends AbstractDialogFragment implements DatePi
     public static class Builder extends AbstractDialogFragment.Builder {
         @NonNull
         @Override
-        protected DialogFragment build() {
+        protected AbstractDialogFragment build() {
             return new DatePickerFragment();
         }
     }

@@ -1,6 +1,7 @@
 package com.example.dialogfragmentdemo.demo;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import timber.log.Timber;
 
 
 public class MainFragment extends Fragment implements AbstractDialogFragment.Callback {
+    final String DIALOG_TAG = "dialog";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -40,8 +42,8 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
                 .setNeutralButton("Cancel")
                 .setNegativeButton("Disagree")
                 .setCancelable(true)
-                .build(this, 201)
-                .show(getFragmentManager(), "dialog");
+                .build(201)
+                .showOn(this, DIALOG_TAG);
     }
 
     @OnClick(R.id.button2)
@@ -55,8 +57,8 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
                 .setNeutralButton(R.string.alert_cancel)
                 .setNegativeButton(R.string.alert_ng)
                 .setCancelable(false)
-                .build(this, 202)
-                .show(getFragmentManager(), "dialog");
+                .build(202)
+                .showOn(this, DIALOG_TAG);
     }
 
     @OnClick(R.id.button3)
@@ -71,15 +73,15 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
                 .setNegativeButton("Disagree")
                 .setCancelable(true)
                 .build(203)
-                .show(getChildFragmentManager(), "dialog");
+                .showChildOn(this, DIALOG_TAG);
     }
 
     @OnClick(R.id.button4)
     void showDatePickerFragment() {
         Timber.d("showDatePickerFragment");
         new DatePickerFragment.Builder()
-                .build(this, 204)
-                .show(getFragmentManager(), "dialog");
+                .build(204)
+                .showOn(this, DIALOG_TAG);
     }
 
     @Override
@@ -88,5 +90,10 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
         Timber.d("onDialogResult: resultCode=%s", resultCode);
         Timber.d("onDialogResult: data=%s", data);
         Timber.d("onDialogResult: extra=%s", (data != null ? data.getExtras() : "null"));
+    }
+
+    @Override
+    public void onDialogCancelled(int requestCode) {
+        onDialogResult(requestCode, DialogInterface.BUTTON_NEUTRAL, null);
     }
 }

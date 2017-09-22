@@ -8,10 +8,12 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 /**
- * コールバック通知を必要とするダイアログ・フラグメントのための抽象クラス.
+ * コールバック通知を必要とするダイアログ・フラグメントの抽象クラス.
  * <p>
  * このクラスを実装したダイアログから以下のコンポーネントへ、ダイアログの結果をコールバックする事ができます.
  * - アクティビティ, ターゲット・フラグメント, 親フラグメント
@@ -19,12 +21,13 @@ import android.support.v7.app.AppCompatActivity;
  * コールバックするコンポーネントを指定するため、ビルダにて3種類のビルド方法を提供します。
  */
 public abstract class AbstractDialogFragment extends DialogFragment {
+
     /**
      * ダイアログの結果を通知するためのコールバック・インタフェース.
      */
     public interface Callback {
         /**
-         * このメソッドは、ダイアログのボタンが押された時、あるいはダイアログがキャンセルされた時に呼び出されます。
+         * このメソッドは、ダイアログのボタンが押された時に呼び出されます.
          *
          * @param requestCode ダイアログのリクエストコード.
          * @param resultCode  ダイアログの結果コード. {@link DialogInterface} が定義する値に従います.
@@ -32,71 +35,107 @@ public abstract class AbstractDialogFragment extends DialogFragment {
          *                    結果データの具体的な仕様は、個々の具象クラスが規定してください.
          */
         void onDialogResult(int requestCode, int resultCode, Intent data);
+
+        /**
+         * このメソッドは、ダイアログがキャンセルされた時に呼び出されます.
+         *
+         * @param requestCode ダイアログのリクエストコード.
+         */
+        void onDialogCancelled(int requestCode);
+    }
+
+    private enum HostType {
+        UNSPECIFIED,
+        ACTIVITY,
+        TARGET_FRAGMENT,
+        PARENT_FRAGMENT
     }
 
     private static final String ARG_PREFIX = AbstractDialogFragment.class.getName() + ".";
     private static final String ARG_REQUEST_CODE = ARG_PREFIX + "requestCode";
-    private static final String ARG_CALLBACK_ACTIVITY = ARG_PREFIX + "callbackActivity";
-    private static final String ARG_CALLBACK_TARGET = ARG_PREFIX + "callbackTarget";
-    private static final String ARG_CALLBACK_PARENT = ARG_PREFIX + "callbackParent";
+    private static final String ARG_CALLBACK_TARGET = ARG_PREFIX + "callbackHostSpec";
 
-    private int mRequestCode;
-    private boolean mShouldCallbackToParent;
-    private boolean mShouldCallbackToTarget;
-    private boolean mShouldCallbackToActivity;
+    private int requestCode;
+    private HostType callbackHostSpec;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Bundle args = getArguments();
-        mRequestCode = args.getInt(ARG_REQUEST_CODE);
-        mShouldCallbackToParent = args.getBoolean(ARG_CALLBACK_PARENT);
-        mShouldCallbackToTarget = args.getBoolean(ARG_CALLBACK_TARGET);
-        mShouldCallbackToActivity = args.getBoolean(ARG_CALLBACK_ACTIVITY);
+        requestCode = args.getInt(ARG_REQUEST_CODE);
+        callbackHostSpec = (HostType) args.getSerializable(ARG_CALLBACK_TARGET);
     }
 
     /**
-     * ダイアログの結果を通知する.
-     * 具象クラスは、本メソッドを呼び出して、結果をアクティビティ又はフラグメントへ通知してください.
+     * {@link #callbackHostSpec} の状態別に、target が コールバックすべき対象であるかを確認します.
+     * callbackHostSpec が UNSPECIFIED である場合は、全てのtargetがコールバック対象です.
+     * callbackHostSpec が UNSPECIFIED以外 である場合は、callbackHostSpec と一致する target がコールバック対象です.
      *
-     * @param resultCode 結果コード.
+     * @param target 検査するコールバック対象の種別
+     * @return 確認結果: true=コールバックすべき対象である場合. false=それ以外.
+     */
+    private boolean shouldCallback(HostType target) {
+        return callbackHostSpec == HostType.UNSPECIFIED || callbackHostSpec == target;
+    }
+
+    /**
+     * ダイアログの結果を通知します.
+     *
+     * @param resultCode 結果コード. {@link DialogInterface} が定義する値を設定してください.
+     *                   次のような値を設定してください.
+     *                   1) {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)}
+     *                   から取得したwitchの値.
+     *                   2) ボタンの役割に応じた次の値; {@link DialogInterface#BUTTON_POSITIVE}、
+     *                   {@link DialogInterface#BUTTON_NEUTRAL}、{@link DialogInterface#BUTTON_NEGATIVE}
      * @param data       結果データ.
      */
     protected final void notifyDialogResult(int resultCode, Intent data) {
-        Fragment parent = getParentFragment();
-        if (mShouldCallbackToParent && parent instanceof Callback) {
-            Callback callback = (Callback) parent;
-            callback.onDialogResult(mRequestCode, resultCode, data);
+        Activity activity = getActivity();
+        if (shouldCallback(HostType.ACTIVITY) && activity instanceof Callback) {
+            Callback callback = (Callback) activity;
+            callback.onDialogResult(requestCode, resultCode, data);
         }
 
         Fragment target = getTargetFragment();
-        if (mShouldCallbackToTarget && target instanceof Callback) {
+        if (shouldCallback(HostType.TARGET_FRAGMENT) && target instanceof Callback) {
             Callback callback = (Callback) target;
-            callback.onDialogResult(mRequestCode, resultCode, data);
+            callback.onDialogResult(requestCode, resultCode, data);
         }
 
-        Activity activity = getActivity();
-        if (mShouldCallbackToActivity && activity instanceof Callback) {
-            Callback callback = (Callback) activity;
-            callback.onDialogResult(mRequestCode, resultCode, data);
+        Fragment parent = getParentFragment();
+        if (shouldCallback(HostType.PARENT_FRAGMENT) && parent instanceof Callback) {
+            Callback callback = (Callback) parent;
+            callback.onDialogResult(requestCode, resultCode, data);
         }
     }
 
     /**
-     * ダイアログがキャンセルした場合に呼び出される.
-     * {@link AbstractDialogFragment}では、キャンセルイベントを捕捉して、
-     * {@link Callback#onDialogResult(int, int, Intent)}をコールバックします.
-     * 結果コードは {@link DialogInterface#BUTTON_NEUTRAL} を渡します.
-     * <p>
-     * 具象クラスにおいて、この動作が不要である場合は、このメソッドをオーバーライドする必要があります.
-     *
-     * @param dialog -
+     * ダイアログのキャンセル結果を通知します.
      */
+    protected final void notifyDialogCancelled() {
+        Activity activity = getActivity();
+        if (shouldCallback(HostType.ACTIVITY) && activity instanceof Callback) {
+            Callback callback = (Callback) activity;
+            callback.onDialogCancelled(requestCode);
+        }
+
+        Fragment target = getTargetFragment();
+        if (shouldCallback(HostType.TARGET_FRAGMENT) && target instanceof Callback) {
+            Callback callback = (Callback) target;
+            callback.onDialogCancelled(requestCode);
+        }
+
+        Fragment parent = getParentFragment();
+        if (shouldCallback(HostType.PARENT_FRAGMENT) && parent instanceof Callback) {
+            Callback callback = (Callback) parent;
+            callback.onDialogCancelled(requestCode);
+        }
+    }
+
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        notifyDialogResult(DialogInterface.BUTTON_NEUTRAL, null);
+        notifyDialogCancelled();
     }
 
     /**
@@ -104,7 +143,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      */
     public abstract static class Builder {
 
-        private boolean mCancelable = true;
+        private boolean cancelable = true;
 
         /**
          * ダイアログのキャンセルが可能か否かを設定します.
@@ -114,108 +153,125 @@ public abstract class AbstractDialogFragment extends DialogFragment {
          */
         @NonNull
         public Builder setCancelable(boolean cancelable) {
-            mCancelable = cancelable;
+            this.cancelable = cancelable;
             return this;
         }
 
         /**
-         * ダイアログ・フラグメントを生成する。
-         * 具象クラスは、このメソッドをオーバーライドして、
-         * 自身の具象ダイアログ・フラグメントを生成し、そのインスタンスを戻してください.
+         * ダイアログ・フラグメントを生成するための抽象メソッド.
          * <p>
-         * 同時に、{@link DialogFragment#setArguments(Bundle)}で設定する
-         * パラメータのセットアップも、このメソッドの中で完了させてください.
+         * AbstractDialogFragmentを継承したダイアログは、
+         * このメソッドをオーバーライドして、ダイアログ・フラグメントを生成してください.
          *
-         * @return 生成した具象ダイアログ・フラグメント.
+         * @return 生成したダイアログ・フラグメント.
          */
         @NonNull
-        protected abstract DialogFragment build();
+        protected abstract AbstractDialogFragment build();
 
         /**
          * ダイアログ・フラグメントを生成する.
-         * このメソッドは、ビルド・メソッドの内部実装です.
          *
-         * @param requestCode      リクエスト・コード.
-         * @param callbackParent   親フラグメントへのコールバックが必要か否か.
-         * @param callbackTarget   ターゲット・フラグメントへのコールバックが必要か否か.
-         * @param callbackActivity アクティビティへのコールバックが必要か否か.
-         * @return 生成したダイアログ.
+         * @param requestCode リクエスト・コード.
+         * @return 生成したダイアログ・フラグメント.
          */
         @NonNull
-        private DialogFragment build(int requestCode, boolean callbackParent, boolean callbackTarget, boolean callbackActivity) {
-            DialogFragment dialog = build();
-            Bundle args = dialog.getArguments();
-
-            if (dialog.getArguments() == null) {
-                args = new Bundle();
-            }
+        public final AbstractDialogFragment build(int requestCode) {
+            AbstractDialogFragment dialog = build();
+            Bundle args = (dialog.getArguments() != null) ? dialog.getArguments() : new Bundle();
 
             args.putInt(ARG_REQUEST_CODE, requestCode);
-            args.putBoolean(ARG_CALLBACK_PARENT, callbackParent);
-            args.putBoolean(ARG_CALLBACK_TARGET, callbackTarget);
-            args.putBoolean(ARG_CALLBACK_ACTIVITY, callbackActivity);
+            args.putSerializable(ARG_CALLBACK_TARGET, HostType.UNSPECIFIED);
+
             dialog.setArguments(args);
-            dialog.setCancelable(mCancelable);
+            dialog.setCancelable(cancelable);
 
             return dialog;
         }
+    }
 
-        /**
-         * ダイアログをビルドします.
-         * ダイアログの結果は、{@link Callback}を実装したアクティビティへ通知します.
-         * ダイアログの表示に使用するフラグメント・マネージャは
-         * {@link Activity#getFragmentManager()}
-         * あるいは {@link AppCompatActivity#getSupportFragmentManager()}
-         * を使用する必要があります.
-         *
-         * @param activity    現在のアクティビティ.
-         * @param requestCode 結果コード.
-         * @return 生成したダイアログ.
-         * @see Fragment#getActivity()
-         */
-        @NonNull
-        public final DialogFragment build(Activity activity, int requestCode) {
-            return build(requestCode, false, false, true);
+    /**
+     * ダイアログを表示します。
+     * ダイアログの結果は {@link Callback} を実装したホスト
+     * (アクティビティ、ターゲット指定されたフラグメント、親フラグメント)に通知します.
+     *
+     * @param transaction ダイアログを追加するトランザクション
+     * @param tag         ダイアログを識別するタグ
+     * @deprecated 本メソッドの使用は推奨しません。可能な限り
+     * {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
+     * {@link #showChildOn(Fragment, String)} の何れかのメソッドを使用して表示させてください。
+     */
+    @Override
+    public int show(FragmentTransaction transaction, String tag) {
+        return super.show(transaction, tag);
+    }
+
+    /**
+     * ダイアログを表示します。
+     * ダイアログの結果は {@link Callback} を実装したホスト
+     * (アクティビティ、ターゲット指定されたフラグメント、親フラグメント)に通知します.
+     *
+     * @param manager ダイアログを追加するフラグメント・マネージャ
+     * @param tag     ダイアログを識別するタグ
+     * @deprecated 本メソッドの使用は推奨しません。可能な限り
+     * {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
+     * {@link #showChildOn(Fragment, String)} の何れかのメソッドを使用して表示させてください。
+     */
+    @Override
+    public void show(FragmentManager manager, String tag) {
+        super.show(manager, tag);
+    }
+
+    /**
+     * ダイアログを表示します.
+     * ダイアログの結果は {@link Callback} を実装したホスト(アクティビティ)に通知します.
+     * <p>
+     * ダイアログ・フラグメントは {@link AppCompatActivity#getSupportFragmentManager()}
+     * に追加されます.
+     *
+     * @param host ダイアログの結果を通知するホスト
+     *             NOTE: 引数に与えるアクティビティは AppCompatActivity を継承したオブジェクトである必要があります。
+     * @param tag  ダイアログを識別するタグ
+     */
+    public void showOn(@NonNull Activity host, String tag) {
+        if (!(host instanceof AppCompatActivity)) {
+            throw new IllegalArgumentException("host activity only supports AppCompatActivity.");
         }
+        getArguments().putSerializable(ARG_CALLBACK_TARGET, HostType.ACTIVITY);
+        AppCompatActivity hostCompat = (AppCompatActivity) host;
+        FragmentManager manager = hostCompat.getSupportFragmentManager();
+        super.show(manager, tag);
+    }
 
-        /**
-         * ダイアログをビルドします.
-         * ダイアログの結果は、{@link Callback}を実装したターゲット・フラグメントへ通知します.
-         * ダイアログの表示に使用するフラグメント・マネージャは
-         * {@link Fragment#getFragmentManager()}
-         * を使用する必要があります.
-         *
-         * @param target      ターゲット・フラグメント.
-         *                    ビルダの内部実装において、
-         *                    {@link Fragment#setTargetFragment(Fragment, int)}
-         *                    を使用して、ターゲットを設定します.
-         * @param requestCode 結果コード.
-         * @return 生成したダイアログ.
-         * @see Fragment#getTargetFragment()
-         */
-        @NonNull
-        public final DialogFragment build(Fragment target, int requestCode) {
-            DialogFragment dialog = build(requestCode, false, true, false);
-            dialog.setTargetFragment(target, requestCode);
-            return dialog;
-        }
+    /**
+     * ダイアログを表示します.
+     * ダイアログの結果は {@link Callback} を実装したホスト(フラグメント)に通知します.
+     * <p>
+     * ダイアログ・フラグメントは {@link Fragment#getFragmentManager()}
+     * に追加されます.
+     *
+     * @param host ダイアログの結果を通知するホスト
+     * @param tag  ダイアログを識別するタグ
+     */
+    public void showOn(@NonNull Fragment host, String tag) {
+        getArguments().putSerializable(ARG_CALLBACK_TARGET, HostType.TARGET_FRAGMENT);
+        FragmentManager manager = host.getFragmentManager();
+        super.show(manager, tag);
+    }
 
-        /**
-         * ダイアログをビルドします.
-         * ダイアログの結果は、{@link Callback}を実装した親フラグメントへ通知します.
-         * ダイアログの表示に使用するフラグメント・マネージャは
-         * {@link Fragment#getChildFragmentManager()}
-         * を使用する必要があります.
-         *
-         * @param requestCode 結果コード.
-         * @return 生成したダイアログ.
-         * @see Fragment#getParentFragment()
-         */
-        @NonNull
-        public final DialogFragment build(int requestCode) {
-            return build(requestCode, true, false, false);
-        }
-
+    /**
+     * ダイアログを子フラグメントとして表示します.
+     * ダイアログの結果は {@link Callback} を実装したホスト(フラグメント)に通知します.
+     * <p>
+     * ダイアログ・フラグメントは {@link Fragment#getChildFragmentManager()}
+     * に追加されます.
+     *
+     * @param host ダイアログの結果を通知するホスト
+     * @param tag  ダイアログを識別するタグ
+     */
+    public void showChildOn(@NonNull Fragment host, String tag) {
+        getArguments().putSerializable(ARG_CALLBACK_TARGET, HostType.PARENT_FRAGMENT);
+        FragmentManager manager = host.getChildFragmentManager();
+        super.show(manager, tag);
     }
 
 }

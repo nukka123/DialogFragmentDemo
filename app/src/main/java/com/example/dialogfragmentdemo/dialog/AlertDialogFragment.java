@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
 /**
@@ -15,17 +14,17 @@ import android.support.v7.app.AlertDialog;
  */
 public class AlertDialogFragment extends AbstractDialogFragment {
 
-    static final String ARG_POSITIVE_LABEL = "positiveLabel";
-    static final String ARG_NEGATIVE_LABEL = "negativeLabel";
-    static final String ARG_NEUTRAL_LABEL = "neutralLabel";
-    static final String ARG_TITLE = "title";
-    static final String ARG_MESSAGE = "message";
-    static final String ARG_POSITIVE_LABEL_ID = "positiveLabelId";
-    static final String ARG_NEGATIVE_LABEL_ID = "negativeLabelId";
-    static final String ARG_NEUTRAL_LABEL_ID = "neutralLabelId";
-    static final String ARG_TITLE_ID = "titleId";
-    static final String ARG_MESSAGE_ID = "messageId";
-    static final String ARG_ICON_ID = "iconId";
+    private static final String ARG_POSITIVE_LABEL = "positiveLabel";
+    private static final String ARG_NEGATIVE_LABEL = "negativeLabel";
+    private static final String ARG_NEUTRAL_LABEL = "neutralLabel";
+    private static final String ARG_TITLE = "title";
+    private static final String ARG_MESSAGE = "message";
+    private static final String ARG_POSITIVE_LABEL_ID = "positiveLabelId";
+    private static final String ARG_NEGATIVE_LABEL_ID = "negativeLabelId";
+    private static final String ARG_NEUTRAL_LABEL_ID = "neutralLabelId";
+    private static final String ARG_TITLE_ID = "titleId";
+    private static final String ARG_MESSAGE_ID = "messageId";
+    private static final String ARG_ICON_ID = "iconId";
 
     @NonNull
     @Override
@@ -93,71 +92,71 @@ public class AlertDialogFragment extends AbstractDialogFragment {
      * {@link AlertDialogFragment} のビルダ.
      */
     public static class Builder extends AbstractDialogFragment.Builder {
-        String mMessage;
-        String mTitle;
-        String mPositiveLabel;
-        String mNegativeLabel;
-        String mNeutralLabel;
+        String message;
+        String title;
+        String positiveLabel;
+        String negativeLabel;
+        String neutralLabel;
 
-        int mMessageId;
-        int mTitleId;
-        int mPositiveLabelId;
-        int mNegativeLabelId;
-        int mNeutralLabelId;
-        int mIcon;
+        int messageId;
+        int titleId;
+        int positiveLabelId;
+        int negativeLabelId;
+        int neutralLabelId;
+        int iconId;
 
         public Builder setIcon(@DrawableRes int iconId) {
-            mIcon = iconId;
+            this.iconId = iconId;
             return this;
         }
 
         public Builder setMessage(String message) {
-            mMessage = message;
+            this.message = message;
             return this;
         }
 
         public Builder setNegativeButton(String label) {
-            mNegativeLabel = label;
+            negativeLabel = label;
             return this;
         }
 
         public Builder setNeutralButton(String label) {
-            mNeutralLabel = label;
+            neutralLabel = label;
             return this;
         }
 
         public Builder setPositiveButton(String label) {
-            mPositiveLabel = label;
+            positiveLabel = label;
             return this;
         }
 
         public Builder setTitle(String title) {
-            mTitle = title;
+            this.title = title;
             return this;
         }
 
         public Builder setMessage(@StringRes int resId) {
-            mMessageId = resId;
+            messageId = resId;
             return this;
         }
 
         public Builder setNegativeButton(@StringRes int resId) {
-            mNegativeLabelId = resId;
+            negativeLabelId = resId;
             return this;
         }
 
         public Builder setNeutralButton(@StringRes int resId) {
-            mNeutralLabelId = resId;
+            neutralLabelId = resId;
             return this;
         }
 
         public Builder setPositiveButton(@StringRes int resId) {
-            mPositiveLabelId = resId;
+            positiveLabelId = resId;
             return this;
         }
 
         public Builder setTitle(@StringRes int title) {
-            mTitleId = title;
+            titleId = title;
             return this;
         }
 
@@ -170,21 +169,21 @@ public class AlertDialogFragment extends AbstractDialogFragment {
 
         @NonNull
         @Override
-        protected DialogFragment build() {
+        protected AbstractDialogFragment build() {
             Bundle args = new Bundle();
-            args.putString(ARG_MESSAGE, mMessage);
-            args.putString(ARG_TITLE, mTitle);
-            args.putString(ARG_NEGATIVE_LABEL, mNegativeLabel);
-            args.putString(ARG_NEUTRAL_LABEL, mNeutralLabel);
-            args.putString(ARG_POSITIVE_LABEL, mPositiveLabel);
-            args.putInt(ARG_MESSAGE_ID, mMessageId);
-            args.putInt(ARG_TITLE_ID, mTitleId);
-            args.putInt(ARG_NEGATIVE_LABEL_ID, mNegativeLabelId);
-            args.putInt(ARG_NEUTRAL_LABEL_ID, mNeutralLabelId);
-            args.putInt(ARG_POSITIVE_LABEL_ID, mPositiveLabelId);
-            args.putInt(ARG_ICON_ID, mIcon);
+            args.putString(ARG_MESSAGE, message);
+            args.putString(ARG_TITLE, title);
+            args.putString(ARG_NEGATIVE_LABEL, negativeLabel);
+            args.putString(ARG_NEUTRAL_LABEL, neutralLabel);
+            args.putString(ARG_POSITIVE_LABEL, positiveLabel);
+            args.putInt(ARG_MESSAGE_ID, messageId);
+            args.putInt(ARG_TITLE_ID, titleId);
+            args.putInt(ARG_NEGATIVE_LABEL_ID, negativeLabelId);
+            args.putInt(ARG_NEUTRAL_LABEL_ID, neutralLabelId);
+            args.putInt(ARG_POSITIVE_LABEL_ID, positiveLabelId);
+            args.putInt(ARG_ICON_ID, iconId);
 
-            DialogFragment dialog = new AlertDialogFragment();
+            AbstractDialogFragment dialog = new AlertDialogFragment();
             dialog.setArguments(args);
             return dialog;
         }

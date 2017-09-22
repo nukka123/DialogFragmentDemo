@@ -1,5 +1,6 @@
 package com.example.dialogfragmentdemo.demo;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +16,7 @@ import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements AbstractDialogFragment.Callback {
+    final String DIALOG_TAG = "dialog";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +55,8 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
                 .setNeutralButton("Cancel")
                 .setNegativeButton("Disagree")
                 .setCancelable(true)
-                .build(this, 100)
-                .show(getSupportFragmentManager(), "dialog");
+                .build(100)
+                .showOn(this, DIALOG_TAG);
     }
 
 
@@ -64,6 +66,12 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
         Timber.d("onDialogResult: resultCode=%s", resultCode);
         Timber.d("onDialogResult: data=%s", data);
     }
+
+    @Override
+    public void onDialogCancelled(int requestCode) {
+        onDialogResult(requestCode, DialogInterface.BUTTON_NEUTRAL, null);
+    }
+
 
     static void navigateToMain(FragmentManager manager) {
         Timber.d("navigateToMain");
