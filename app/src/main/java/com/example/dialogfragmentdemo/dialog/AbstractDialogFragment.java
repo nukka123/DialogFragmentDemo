@@ -13,12 +13,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 /**
- * コールバック通知を必要とするダイアログ・フラグメントの抽象クラス.
+ * コールバックによる通知機能を備えたダイアログを実装するための抽象ダイアログ・フラグメント.
  * <p>
- * このクラスを実装したダイアログから以下のコンポーネントへ、ダイアログの結果をコールバックする事ができます.
- * - アクティビティ, ターゲット・フラグメント, 親フラグメント
+ * このクラスを実装したダイアログの結果は、{@link Callback}を実装したホストへ通知されます.
+ * 通知対象のホストは、このクラスが提供する表示メソッドによって指定する事ができます.
+ * 詳しくは {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
+ * {@link #showChildOn(Fragment, String)} のドキュメントを確認してください.
  * <p>
- * コールバックするコンポーネントを指定するため、ビルダにて3種類のビルド方法を提供します。
+ * このクラスを実装したダイアログ・フラグメントを生成するためには、{@link Builder#build()} を使用します.
  */
 public abstract class AbstractDialogFragment extends DialogFragment {
 
@@ -44,6 +46,9 @@ public abstract class AbstractDialogFragment extends DialogFragment {
         void onDialogCancelled(int requestCode);
     }
 
+    /**
+     * ダイアログのホストの種別
+     */
     private enum HostType {
         UNSPECIFIED,
         ACTIVITY,
@@ -53,18 +58,30 @@ public abstract class AbstractDialogFragment extends DialogFragment {
 
     private static final String ARG_PREFIX = AbstractDialogFragment.class.getName() + ".";
     private static final String ARG_REQUEST_CODE = ARG_PREFIX + "requestCode";
-    private static final String ARG_CALLBACK_TARGET = ARG_PREFIX + "callbackHostSpec";
+    private static final String ARG_CALLBACK_HOST = ARG_PREFIX + "callbackHostSpec";
 
     private int requestCode;
     private HostType callbackHostSpec;
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkArguments(getArguments());
+
         Bundle args = getArguments();
         requestCode = args.getInt(ARG_REQUEST_CODE);
-        callbackHostSpec = (HostType) args.getSerializable(ARG_CALLBACK_TARGET);
+        callbackHostSpec = (HostType) args.getSerializable(ARG_CALLBACK_HOST);
     }
+
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        notifyDialogCancelled();
+    }
+
 
     /**
      * {@link #callbackHostSpec} の状態別に、target が コールバックすべき対象であるかを確認します.
@@ -80,9 +97,12 @@ public abstract class AbstractDialogFragment extends DialogFragment {
 
     /**
      * ダイアログの結果を通知します.
+     * <p>
+     * 実装クラスは、ダイアログの終了を伴うボタンのクリック・イベントにおいて、
+     * このメソッドを使用して結果をホストに通知するようにしてください。
      *
-     * @param resultCode 結果コード. {@link DialogInterface} が定義する値を設定してください.
-     *                   次のような値を設定してください.
+     * @param resultCode 結果コード.
+     *                   例で示すような {@link DialogInterface} の定義値を設定してください.
      *                   1) {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)}
      *                   から取得したwitchの値.
      *                   2) ボタンの役割に応じた次の値; {@link DialogInterface#BUTTON_POSITIVE}、
@@ -110,7 +130,11 @@ public abstract class AbstractDialogFragment extends DialogFragment {
     }
 
     /**
-     * ダイアログのキャンセル結果を通知します.
+     * ダイアログの(領域外のタップ等による)キャンセルが発生した事を通知します.
+     * <p>
+     * NOTE: 抽象クラスは {@link #onCancel(DialogInterface)} の処理として、
+     * このメソッドによる通知を実施しています.
+     * そのため実際には、実装クラスが、このメソッドを使用する必要はありません.
      */
     protected final void notifyDialogCancelled() {
         Activity activity = getActivity();
@@ -132,14 +156,13 @@ public abstract class AbstractDialogFragment extends DialogFragment {
         }
     }
 
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        super.onCancel(dialog);
-        notifyDialogCancelled();
-    }
 
     /**
-     * ダイアログのビルダ.
+     * ダイアログ・フラグメントのビルダ.
+     * <p>
+     * 実装クラスは、このビルダを継承して、各自のダイアログ・フラグメントを構築する処理を実装します.
+     * <p>
+     * ダイアログの利用者は、実装クラスのビルダを使用して、ダイアログ・フラグメントを生成してください.
      */
     public abstract static class Builder {
 
@@ -160,8 +183,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
         /**
          * ダイアログ・フラグメントを生成するための抽象メソッド.
          * <p>
-         * AbstractDialogFragmentを継承したダイアログは、
-         * このメソッドをオーバーライドして、ダイアログ・フラグメントを生成してください.
+         * 実装クラスは、このメソッドをオーバーライドしてダイアログ・フラグメントを生成してください.
          *
          * @return 生成したダイアログ・フラグメント.
          */
@@ -180,7 +202,10 @@ public abstract class AbstractDialogFragment extends DialogFragment {
             Bundle args = (dialog.getArguments() != null) ? dialog.getArguments() : new Bundle();
 
             args.putInt(ARG_REQUEST_CODE, requestCode);
-            args.putSerializable(ARG_CALLBACK_TARGET, HostType.UNSPECIFIED);
+
+            // デフォルトのホスト種別を設定する.
+            // 明示的な設定は、ダイアログの表示メソッドで実施する.
+            args.putSerializable(ARG_CALLBACK_HOST, HostType.UNSPECIFIED);
 
             dialog.setArguments(args);
             dialog.setCancelable(cancelable);
@@ -196,8 +221,8 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      *
      * @param transaction ダイアログを追加するトランザクション
      * @param tag         ダイアログを識別するタグ
-     * @deprecated 本メソッドの使用は推奨しません。可能な限り
-     * {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
+     * @deprecated 本メソッドの使用は推奨しません。
+     * 可能な限り {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
      * {@link #showChildOn(Fragment, String)} の何れかのメソッドを使用して表示させてください。
      */
     @Override
@@ -212,8 +237,8 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      *
      * @param manager ダイアログを追加するフラグメント・マネージャ
      * @param tag     ダイアログを識別するタグ
-     * @deprecated 本メソッドの使用は推奨しません。可能な限り
-     * {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
+     * @deprecated 本メソッドの使用は推奨しません。
+     * 可能な限り {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
      * {@link #showChildOn(Fragment, String)} の何れかのメソッドを使用して表示させてください。
      */
     @Override
@@ -233,10 +258,10 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      * @param tag  ダイアログを識別するタグ
      */
     public void showOn(@NonNull Activity host, String tag) {
-        if (!(host instanceof AppCompatActivity)) {
-            throw new IllegalArgumentException("host activity only supports AppCompatActivity.");
-        }
-        getArguments().putSerializable(ARG_CALLBACK_TARGET, HostType.ACTIVITY);
+        checkAppCompatActivity(host);
+        checkArguments(getArguments());
+
+        getArguments().putSerializable(ARG_CALLBACK_HOST, HostType.ACTIVITY);
         AppCompatActivity hostCompat = (AppCompatActivity) host;
         FragmentManager manager = hostCompat.getSupportFragmentManager();
         super.show(manager, tag);
@@ -253,7 +278,9 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      * @param tag  ダイアログを識別するタグ
      */
     public void showOn(@NonNull Fragment host, String tag) {
-        getArguments().putSerializable(ARG_CALLBACK_TARGET, HostType.TARGET_FRAGMENT);
+        checkArguments(getArguments());
+
+        getArguments().putSerializable(ARG_CALLBACK_HOST, HostType.TARGET_FRAGMENT);
         FragmentManager manager = host.getFragmentManager();
         super.show(manager, tag);
     }
@@ -269,9 +296,23 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      * @param tag  ダイアログを識別するタグ
      */
     public void showChildOn(@NonNull Fragment host, String tag) {
-        getArguments().putSerializable(ARG_CALLBACK_TARGET, HostType.PARENT_FRAGMENT);
+        checkArguments(getArguments());
+
+        getArguments().putSerializable(ARG_CALLBACK_HOST, HostType.PARENT_FRAGMENT);
         FragmentManager manager = host.getChildFragmentManager();
         super.show(manager, tag);
     }
 
+
+    private static void checkAppCompatActivity(Activity activity) {
+        if (!(activity instanceof AppCompatActivity)) {
+            throw new IllegalArgumentException("host activity only supports AppCompatActivity.");
+        }
+    }
+
+    private static void checkArguments(Bundle bundle) {
+        if (bundle == null) {
+            throw new IllegalStateException("Don't clear setArguments()");
+        }
+    }
 }

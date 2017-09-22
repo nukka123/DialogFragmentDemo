@@ -32,8 +32,8 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
     }
 
     @OnClick(R.id.button1)
-    void showDialogFromTarget() {
-        Timber.d("showDialogFromTarget");
+    void showDialogOnTarget() {
+        Timber.d("showDialogOnTarget");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
@@ -47,8 +47,8 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
     }
 
     @OnClick(R.id.button2)
-    void showDialogFromTargetWithResId() {
-        Timber.d("showDialogFromTargetWithResId");
+    void showRedIdDialogOnTarget() {
+        Timber.d("showRedIdDialogOnTarget");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle(R.string.alert_title)
@@ -62,8 +62,8 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
     }
 
     @OnClick(R.id.button3)
-    void showDialogFromParent() {
-        Timber.d("showDialogFromParent");
+    void showDialogOnParent() {
+        Timber.d("showDialogOnParent");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
@@ -77,8 +77,8 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
     }
 
     @OnClick(R.id.button4)
-    void showDatePickerFragment() {
-        Timber.d("showDatePickerFragment");
+    void showDatePickerDialog() {
+        Timber.d("showDatePickerDialog");
         new DatePickerFragment.Builder()
                 .build(204)
                 .showOn(this, DIALOG_TAG);

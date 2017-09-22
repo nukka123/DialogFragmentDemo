@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,13 +24,13 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
         setContentView(R.layout.main_activity);
 
         if (savedInstanceState == null) {
-            navigateToMain(getSupportFragmentManager());
+            attachMainFragment();
         }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(0, 10, 0, "show dialog from activity");
+        menu.add(0, 10, 0, "show dialog on activity");
         return true;
     }
 
@@ -39,14 +38,14 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case 10:
-                showDialogFromActivity();
+                showDialogOnActivity();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    void showDialogFromActivity() {
-        Timber.d("showDialogFromActivity");
+    void showDialogOnActivity() {
+        Timber.d("showDialogOnActivity");
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
@@ -73,12 +72,10 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
     }
 
 
-    static void navigateToMain(FragmentManager manager) {
-        Timber.d("navigateToMain");
-        if (manager != null) {
-            manager.beginTransaction()
-                    .replace(R.id.content_view, new MainFragment())
-                    .commit();
-        }
+    void attachMainFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_view, new MainFragment())
+                .commit();
     }
 }
