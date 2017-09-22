@@ -12,8 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
-import timber.log.Timber;
-
 /**
  * コールバックによる通知機能を備えたダイアログを実装するための抽象ダイアログ・フラグメント.
  * <p>
@@ -94,9 +92,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      * @return 確認結果: true=コールバックすべき対象である場合. false=それ以外.
      */
     private boolean shouldCallback(HostType target) {
-        boolean result = callbackHostSpec == HostType.UNSPECIFIED || callbackHostSpec == target;
-        Timber.d("shouldCallback: result = %s", result);
-        return result;
+        return callbackHostSpec == HostType.UNSPECIFIED || callbackHostSpec == target;
     }
 
     /**
