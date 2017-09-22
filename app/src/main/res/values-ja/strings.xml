@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">DialogFragmentDemo</string>
-    <string name="alert_title">タイトル ID版</string>
-    <string name="alert_message">アラート・ダイアログ・フラグメントの世界へようこそ！</string>
+    <string name="alert_title">タイトル (ResId)</string>
+    <string name="alert_message">ダイアログ・フラグメントの世界へようこそ！ (ResId)</string>
     <string name="alert_cancel">キャンセル</string>
     <string name="alert_ng">同意しない</string>
     <string name="alert_ok">同意する</string>

@@ -18,25 +18,25 @@
             android:id="@+id/button1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="show dialog"/>
+            android:text="show dialog (on Target)"/>
 
         <Button
             android:id="@+id/button2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="show dialog with res id"/>
+            android:text="show dialog (res id)"/>
 
         <Button
             android:id="@+id/button3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="show dialog from parent"/>
+            android:text="show dialog (on parent)"/>
 
         <Button
             android:id="@+id/button4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="show date picker fragment"/>
+            android:text="show date picker dialog"/>
     </LinearLayout>
 
 </RelativeLayout>

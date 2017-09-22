@@ -1,10 +1,8 @@
 <resources>
     <string name="app_name">DialogFragmentDemo</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="alert_title">Alert Title by ID</string>
-    <string name="alert_message">Hello, Alert Dialog Fragment World!</string>
+    <string name="alert_title">Alert Title (ResId)</string>
+    <string name="alert_message">Hello, Dialog World! (ResId)</string>
     <string name="alert_ok">Agree</string>
     <string name="alert_ng">Disagree</string>
     <string name="alert_cancel">Cancel</string>

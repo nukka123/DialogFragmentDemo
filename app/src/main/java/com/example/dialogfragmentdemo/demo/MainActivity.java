@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
         new AlertDialogFragment.Builder()
                 .setIcon(android.R.drawable.ic_dialog_info)
                 .setTitle("Alert Title")
-                .setMessage("Hello Alert Dialog World! From Activity.")
+                .setMessage("Hello, Dialog World! (Activity).")
                 .setPositiveButton("Agree")
                 .setNeutralButton("Cancel")
                 .setNegativeButton("Disagree")
