@@ -12,6 +12,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
+import timber.log.Timber;
+
 /**
  * コールバックによる通知機能を備えたダイアログを実装するための抽象ダイアログ・フラグメント.
  * <p>
@@ -92,7 +94,9 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      * @return 確認結果: true=コールバックすべき対象である場合. false=それ以外.
      */
     private boolean shouldCallback(HostType target) {
-        return callbackHostSpec == HostType.UNSPECIFIED || callbackHostSpec == target;
+        boolean result = callbackHostSpec == HostType.UNSPECIFIED || callbackHostSpec == target;
+        Timber.d("shouldCallback: result = %s", result);
+        return result;
     }
 
     /**
@@ -262,6 +266,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
         checkArguments(getArguments());
 
         getArguments().putSerializable(ARG_CALLBACK_HOST, HostType.ACTIVITY);
+
         AppCompatActivity hostCompat = (AppCompatActivity) host;
         FragmentManager manager = hostCompat.getSupportFragmentManager();
         super.show(manager, tag);
@@ -281,6 +286,9 @@ public abstract class AbstractDialogFragment extends DialogFragment {
         checkArguments(getArguments());
 
         getArguments().putSerializable(ARG_CALLBACK_HOST, HostType.TARGET_FRAGMENT);
+
+        setTargetFragment(host, getArguments().getInt(ARG_REQUEST_CODE));
+
         FragmentManager manager = host.getFragmentManager();
         super.show(manager, tag);
     }
@@ -299,6 +307,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
         checkArguments(getArguments());
 
         getArguments().putSerializable(ARG_CALLBACK_HOST, HostType.PARENT_FRAGMENT);
+
         FragmentManager manager = host.getChildFragmentManager();
         super.show(manager, tag);
     }

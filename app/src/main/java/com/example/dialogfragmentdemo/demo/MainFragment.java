@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.dialogfragmentdemo.R;
+import com.example.dialogfragmentdemo.demo.utils.IntentUtils;
+import com.example.dialogfragmentdemo.demo.utils.ToastUtils;
 import com.example.dialogfragmentdemo.dialog.AbstractDialogFragment;
 import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;
 import com.example.dialogfragmentdemo.dialog.DatePickerFragment;
@@ -86,10 +88,9 @@ public class MainFragment extends Fragment implements AbstractDialogFragment.Cal
 
     @Override
     public void onDialogResult(int requestCode, int resultCode, Intent data) {
-        Timber.d("onDialogResult: requestCode=%s", requestCode);
-        Timber.d("onDialogResult: resultCode=%s", resultCode);
-        Timber.d("onDialogResult: data=%s", data);
-        Timber.d("onDialogResult: extra=%s", (data != null ? data.getExtras() : "null"));
+        ToastUtils.show(getContext(), String.format("MainFragment > onDialogResult: result=%s", resultCode));
+        Timber.d("onDialogResult: request=%s, result=%s", requestCode, resultCode);
+        Timber.d("onDialogResult: data=%s, extra=%s", data, IntentUtils.getExtras(data));
     }
 
     @Override

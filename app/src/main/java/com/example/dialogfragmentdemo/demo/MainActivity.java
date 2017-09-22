@@ -9,6 +9,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.dialogfragmentdemo.R;
+import com.example.dialogfragmentdemo.demo.utils.IntentUtils;
+import com.example.dialogfragmentdemo.demo.utils.ToastUtils;
 import com.example.dialogfragmentdemo.dialog.AbstractDialogFragment;
 import com.example.dialogfragmentdemo.dialog.AlertDialogFragment;
 
@@ -61,9 +63,9 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
 
     @Override
     public void onDialogResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Timber.d("onDialogResult: requestCode=%s", requestCode);
-        Timber.d("onDialogResult: resultCode=%s", resultCode);
-        Timber.d("onDialogResult: data=%s", data);
+        ToastUtils.show(this, String.format("MainActivity > onDialogResult: result=%s", resultCode));
+        Timber.d("onDialogResult: request=%s, result=%s", requestCode, resultCode);
+        Timber.d("onDialogResult: data=%s, extra=%s", data, IntentUtils.getExtras(data));
     }
 
     @Override
