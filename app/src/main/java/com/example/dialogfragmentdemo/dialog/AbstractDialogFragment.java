@@ -15,12 +15,17 @@ import android.support.v7.app.AppCompatActivity;
 /**
  * コールバックによる通知機能を備えたダイアログを実装するための抽象ダイアログ・フラグメント.
  * <p>
- * このクラスを実装したダイアログの結果は、{@link Callback}を実装したホストへ通知されます.
- * 通知対象のホストは、このクラスが提供する表示メソッドによって指定する事ができます.
+ * このクラスを実装したダイアログ・フラグメントを生成するためには、{@link Builder#build()} を使用します.
+ * <p>
+ * 実装クラスによるダイアログの結果は、{@link Callback}を実装したホストへ通知されます.
+ * 通知対象のホストは、このクラスが提供する表示用メソッドで指定する事ができます.
  * 詳しくは {@link #showOn(Activity, String)}、  {@link #showOn(Fragment, String)}、
  * {@link #showChildOn(Fragment, String)} のドキュメントを確認してください.
  * <p>
- * このクラスを実装したダイアログ・フラグメントを生成するためには、{@link Builder#build()} を使用します.
+ * NOTE: 通知対象のホストを明確にするため、実装クラスのダイアログを表示するメソッドとして
+ * {@link DialogFragment#show(FragmentManager, String)}、
+ * {@link DialogFragment#show(FragmentTransaction, String)}
+ * を使用することは推奨しません.
  */
 public abstract class AbstractDialogFragment extends DialogFragment {
 
@@ -34,7 +39,8 @@ public abstract class AbstractDialogFragment extends DialogFragment {
          * @param requestCode ダイアログのリクエストコード.
          * @param resultCode  ダイアログの結果コード. {@link DialogInterface} が定義する値に従います.
          * @param data        ダイアログの結果データ. このパラメータは補助的に使用されます.
-         *                    結果データの具体的な仕様は、個々の具象クラスが規定してください.
+         *                    結果データの具体的な仕様は、実装クラスのドキュメントを確認してください.
+         *                    実装によってはnullである場合があります.
          */
         void onDialogResult(int requestCode, int resultCode, Intent data);
 
@@ -99,7 +105,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      * ダイアログの結果を通知します.
      * <p>
      * 実装クラスは、ダイアログの終了を伴うボタンのクリック・イベントにおいて、
-     * このメソッドを使用して結果をホストに通知するようにしてください。
+     * このメソッドを使用して結果をホストに通知するようにしてください.
      *
      * @param resultCode 結果コード.
      *                   例で示すような {@link DialogInterface} の定義値を設定してください.
@@ -107,7 +113,9 @@ public abstract class AbstractDialogFragment extends DialogFragment {
      *                   から取得したwitchの値.
      *                   2) ボタンの役割に応じた次の値; {@link DialogInterface#BUTTON_POSITIVE}、
      *                   {@link DialogInterface#BUTTON_NEUTRAL}、{@link DialogInterface#BUTTON_NEGATIVE}
-     * @param data       結果データ.
+     * @param data       結果データ. ダイアログの結果として結果コード以外のデータを渡したい場合に、
+     *                   このパラメータを使用してください.
+     *                   このパラメータを使用する必要がない場合はnullを与えてください.
      */
     protected final void notifyDialogResult(int resultCode, Intent data) {
         Activity activity = getActivity();
@@ -204,7 +212,7 @@ public abstract class AbstractDialogFragment extends DialogFragment {
             args.putInt(ARG_REQUEST_CODE, requestCode);
 
             // デフォルトのホスト種別を設定する.
-            // 明示的な設定は、ダイアログの表示メソッドで実施する.
+            // 明示的な設定は、ダイアログの表示メソッドで更新する.
             args.putSerializable(ARG_CALLBACK_HOST, HostType.UNSPECIFIED);
 
             dialog.setArguments(args);

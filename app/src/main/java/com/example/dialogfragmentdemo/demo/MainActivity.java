@@ -1,6 +1,5 @@
 package com.example.dialogfragmentdemo.demo;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -63,14 +62,15 @@ public class MainActivity extends AppCompatActivity implements AbstractDialogFra
 
     @Override
     public void onDialogResult(int requestCode, int resultCode, @Nullable Intent data) {
-        ToastUtils.show(this, String.format("MainActivity > onDialogResult: result=%s", resultCode));
+        ToastUtils.show(this, String.format("MainActivity > onDialogResult: request=%s, result=%s", requestCode, resultCode));
         Timber.d("onDialogResult: request=%s, result=%s", requestCode, resultCode);
         Timber.d("onDialogResult: data=%s, extra=%s", data, IntentUtils.getExtras(data));
     }
 
     @Override
     public void onDialogCancelled(int requestCode) {
-        onDialogResult(requestCode, DialogInterface.BUTTON_NEUTRAL, null);
+        ToastUtils.show(this, String.format("MainActivity > onDialogCancelled: request=%s", requestCode));
+        // onDialogResult(requestCode, DialogInterface.BUTTON_NEUTRAL, null);
     }
 
 
